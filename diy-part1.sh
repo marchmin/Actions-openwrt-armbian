@@ -14,4 +14,4 @@
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
 # Add a feed source
-#sed -i '$a src-git rosy https://github.com/shiyu1314/luci-theme-rosy' feeds.conf.default
+sed -i '$a src-git sirpdboy https://github.com/sirpdboy/sirpdboy-package' feeds.conf.default
