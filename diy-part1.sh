@@ -15,3 +15,4 @@
 
 # Add a feed source
 sed -i '$a src-git sirpdboy https://github.com/sirpdboy/sirpdboy-package' feeds.conf.default
+sed -i '$a src-git zerotier https://github.com/mwarning/zerotier-openwrt' feeds.conf.default
