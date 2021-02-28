@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions  
 #
 
-name: Build OpenWrt
+name: 19 OpenWrt
 
 on:
   repository_dispatch:
@@ -20,7 +20,7 @@ on:
         default: 'false'
 
 env:
-  REPO_URL: https://github.com/shiyu1314/openwrt/tree/21.02
+  REPO_URL: https://github.com/shiyu1314/openwrt/tree/19.07
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
