@@ -14,4 +14,4 @@
 #sed -i 's/^#\(.*helloworld\)/\1/' feeds.conf.default
 
 # Add a feed source
-sed -i '$a src-git Lean-SSRPlus https://github.com/immortalwrt/Lean-SSRPlus' feeds.conf.default
+sed -i '$a src-git SSRPlus https://github.com/immortalwrt/Lean-SSRPlus' feeds.conf.default
