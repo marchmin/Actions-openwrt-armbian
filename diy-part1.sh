@@ -16,4 +16,3 @@
 # Add a feed source
 sed -i '$a src-git xd https://github.com/kenzok8/openwrt-packages' feeds.conf.default
 sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
-sed -i '$a src-git lean https://github.com/coolsnowwolf/lede/tree/master/package/lean' feeds.conf.default
