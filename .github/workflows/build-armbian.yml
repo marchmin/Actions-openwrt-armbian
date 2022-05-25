@@ -79,28 +79,4 @@ jobs:
           sudo ./compile.sh BRANCH=${{ env.ARMBIAN_BRANCH }} RELEASE=${{ env.ARMBIAN_RELEASE }} BOARD=${{ env.ARMBIAN_BOARD }} \
                             BUILD_MINIMAL=no BUILD_DESKTOP=no HOST=armbian KERNEL_ONLY=no KERNEL_CONFIGURE=no \
                             CLEAN_LEVEL=make,debs COMPRESS_OUTPUTIMAGE=sha
-          echo "::set-output name=status::success"
-          
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@v2
-        if: steps.organize.outputs.status == 'success' && !cancelled()
-        with:
-          name: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
-          path: ${{ env.PACKAGED_OUTPUTDATE }}/*
-
-      - name: Upload Armbian image to Release
-        uses: actions/upload-artifact@v2
-        if: env.PACKAGED_STATUS == 'success' && !cancelled()
-        with:
-          tag: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
-          artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
-          allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          body: |
-            This is Armbian image for Amlogic s9xxx tv box
-            * Firmware information
-            Default username: root
-            Default password: 1234
-            Install command: armbian-install
-            Update command: armbian-update
-  
+          - uses: actions/upload-artifact@v2
