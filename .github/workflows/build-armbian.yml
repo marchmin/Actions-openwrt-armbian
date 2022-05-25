@@ -90,7 +90,7 @@ jobs:
           echo "::set-output name=status::success"
 
       - name: Upload Armbian image to Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@main
         if: env.PACKAGED_STATUS == 'success' && !cancelled()
         with:
           tag: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
