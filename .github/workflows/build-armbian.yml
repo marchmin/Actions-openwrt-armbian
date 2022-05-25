@@ -85,8 +85,8 @@ jobs:
         uses: actions/upload-artifact@v2
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-        name: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
-        path: ${{ env.PACKAGED_OUTPUTDATE }}
+          name: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
+          path: ${{ env.PACKAGED_OUTPUTDATE }}
 
       - name: Upload Armbian image to Release
         uses: actions/upload-artifact@v2
