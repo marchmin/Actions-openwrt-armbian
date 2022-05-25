@@ -21,14 +21,6 @@ on:
         description: "Board: lepotato / odroidn2"
         required: false
         default: "onecloud"
-      armbian_soc:
-        description: "Set Amlogic SoC."
-        required: false
-        default: "all"
-      armbian_kernel:
-        description: "Set kernel version."
-        required: false
-        default: "5.18.0-rc7"
       armbian_size:
         description: "Set armbian rootfs size."
         required: false
@@ -96,16 +88,6 @@ jobs:
                             BUILD_MINIMAL=no BUILD_DESKTOP=no HOST=armbian KERNEL_ONLY=no KERNEL_CONFIGURE=no \
                             CLEAN_LEVEL=make,debs COMPRESS_OUTPUTIMAGE=sha
           echo "::set-output name=status::success"
-      - name: Rebuild Armbian for Amlogic s9xxx
-        uses: ophub/amlogic-s9xxx-armbian@main
-        if: steps.compile.outputs.status == 'success' && !cancelled()
-        with:
-          build_target: armbian
-          armbian_path: build/output/images/*.img
-          armbian_soc: ${{ github.event.inputs.armbian_soc }}
-          armbian_kernel: ${{ github.event.inputs.armbian_kernel }}
-          armbian_size: ${{ github.event.inputs.armbian_size }}
-          armbian_fstype: ${{ github.event.inputs.armbian_fstype }}
 
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@v1
