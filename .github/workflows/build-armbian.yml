@@ -89,14 +89,12 @@ jobs:
                             CLEAN_LEVEL=make,debs COMPRESS_OUTPUTIMAGE=sha
           echo "::set-output name=status::success"
           
-      - name: Upload firmware directory
-        uses: actions/upload-artifact@main
-        if: steps.organize.outputs.status == 'success' && !cancelled()
+      - name: Rebuild Armbian
+        uses: ophub/Actions-OpenWrt@main
+        if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
-          tag: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
-          artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
-          allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          build_target: armbian
+          armbian_path: build/output/images/*.img
 
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
