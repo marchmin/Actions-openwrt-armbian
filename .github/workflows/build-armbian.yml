@@ -88,6 +88,15 @@ jobs:
                             BUILD_MINIMAL=no BUILD_DESKTOP=no HOST=armbian KERNEL_ONLY=no KERNEL_CONFIGURE=no \
                             CLEAN_LEVEL=make,debs COMPRESS_OUTPUTIMAGE=sha
           echo "::set-output name=status::success"
+          
+      - name: Upload firmware directory
+          uses: actions/upload-artifact@main
+          if: steps.organize.outputs.status == 'success' && !cancelled()
+        with:
+          tag: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
+          artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Armbian image to Release
         uses: ncipollo/release-action@main
