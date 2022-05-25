@@ -80,3 +80,6 @@ jobs:
                             BUILD_MINIMAL=no BUILD_DESKTOP=no HOST=armbian KERNEL_ONLY=no KERNEL_CONFIGURE=no \
                             CLEAN_LEVEL=make,debs COMPRESS_OUTPUTIMAGE=sha
           - uses: actions/upload-artifact@v2
+          with:
+            name: armbian
+            path: build/armbian
