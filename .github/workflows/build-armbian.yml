@@ -82,7 +82,7 @@ jobs:
           echo "::set-output name=status::success"
           
       - name: Rebuild Armbian
-        uses: ophub/Actions-OpenWrt@main
+        uses: shiyu1314/Actions-OpenWrt@main
         if: steps.compile.outputs.status == 'success' && !cancelled()
         with:
           build_target: armbian
