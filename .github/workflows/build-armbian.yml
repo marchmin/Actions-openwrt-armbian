@@ -81,15 +81,9 @@ jobs:
                             CLEAN_LEVEL=make,debs COMPRESS_OUTPUTIMAGE=sha
           echo "::set-output name=status::success"
           
-      - name: Rebuild Armbian
-        uses: actions/upload-artifact@v2
-        if: steps.compile.outputs.status == 'success' && !cancelled()
-        with:
-          build_target: armbian
-          armbian_path: build/output/images/*.img
-
+      
       - name: Upload Armbian image to Release
-        uses: ncipollo/release-action@main
+        uses: actions/upload-artifact@v2
         if: env.PACKAGED_STATUS == 'success' && !cancelled()
         with:
           tag: Armbian_Aml_${{ env.ARMBIAN_RELEASE }}_${{ env.PACKAGED_OUTPUTDATE }}
