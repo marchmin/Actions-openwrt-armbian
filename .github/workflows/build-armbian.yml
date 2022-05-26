@@ -26,8 +26,8 @@ on:
         default: '0' 
         
 env:
-  REPO_URL: https://github.com/armbian/build
-  REPO_BRANCH: master
+  REPO_URL: https://github.com/soulteary/armbian-build-s805
+  REPO_BRANCH: codebase-on-150balbes
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
@@ -70,7 +70,7 @@ jobs:
       id: compile
       run: |
         cd armbian
-        ./compile.sh BOARD=onecloud BRANCH=current RELEASE=buster BUILD_MINIMAL=yes BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img DOWNLOAD_MIRROR=china MAINLINE_MIRROR=tuna EXTRAWIFI=no
+        ./compile.sh BOARD=aml-s805 BRANCH=current RELEASE=buster BUILD_MINIMAL=yes BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img DOWNLOAD_MIRROR=china MAINLINE_MIRROR=tuna EXTRAWIFI=no
               
     - name: Organize files
       id: organize
