@@ -27,7 +27,7 @@ on:
         
 env:
   REPO_URL: https://github.com/hzyitc/armbian-onecloud
-  REPO_BRANCH: meson-hdmi
+  REPO_BRANCH: onecloud-bootscript
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   UPLOAD_BIN_DIR: false
@@ -70,7 +70,7 @@ jobs:
       id: compile
       run: |
         cd armbian
-        ./compile.sh BOARD=onecloud BRANCH=edge RELEASE=buster BUILD_MINIMAL=yes BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img EXTRAWIFI=no
+        ./compile.sh BOARD=onecloud BRANCH=current RELEASE=buster BUILD_MINIMAL=yes BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img EXTRAWIFI=no
               
     - name: Organize files
       id: organize
