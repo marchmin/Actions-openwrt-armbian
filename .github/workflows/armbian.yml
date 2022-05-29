@@ -20,6 +20,9 @@ jobs:
           - bullseye # Debian 11
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Clone repo
         run: git clone --depth=1 --single-branch -b master https://github.com/armbian/build
 
