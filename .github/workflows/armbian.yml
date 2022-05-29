@@ -22,11 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-
-      - name: Clone repo
-        run: git clone --depth=1 --single-branch -b master https://github.com/armbian/build
-
       - name: Install dependment
         run: |
           sudo apt update
@@ -34,6 +29,7 @@ jobs:
 
       - name: Build
         run: |
+         git clone --depth=1 --single-branch -b master https://github.com/armbian/build
          cd build
           sudo ./compile.sh \
             BOARD=onecloud \
