@@ -37,11 +37,8 @@ jobs:
             RELEASE=${{ matrix.release }} \
             KERNEL_CONFIGURE=no \
             KERNEL_ONLY=no \
-            BUILD_MINIMAL=no \
-            BUILD_DESKTOP=yes \
-            DESKTOP_ENVIRONMENT=xfce \
-            DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base \
-            DESKTOP_APPGROUPS_SELECTED="" \
+            BUILD_MINIMAL=yes \
+            BUILD_DESKTOP=no \
             EXPERT=yes \
             USE_CCACHE=no \
             COMPRESS_OUTPUTIMAGE=gz,sha,gpg
