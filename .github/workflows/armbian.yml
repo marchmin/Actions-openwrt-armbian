@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - edge
+          - current
+          - legacy
+        release:
+          - focal # Ubuntu 20.04 LTS
+          - jammy # Ubuntu 22.04 LTS
+          - bullseye # Debian 11
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: armbian/build
+
+      - name: Install dependment
+        run: |
+          sudo apt update
+          sudo apt install libmpc-dev
+
+      - name: Build
+        run: |
+          sudo ./compile.sh \
+            BOARD=onecloud \
+            BRANCH=${{ matrix.branch }} \
+            RELEASE=${{ matrix.release }} \
+            KERNEL_CONFIGURE=no \
+            KERNEL_ONLY=no \
+            BUILD_MINIMAL=no \
+            BUILD_DESKTOP=yes \
+            DESKTOP_ENVIRONMENT=xfce \
+            DESKTOP_ENVIRONMENT_CONFIG_NAME=config_base \
+            DESKTOP_APPGROUPS_SELECTED="" \
+            EXPERT=yes \
+            USE_CCACHE=no \
+            COMPRESS_OUTPUTIMAGE=gz,sha,gpg
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.branch }}-${{ matrix.release }}
+          path: output/images/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts/
+
+      - name: Release
+        run: |
+          time="${{ github.event.head_commit.timestamp }}"
+          sha="${GITHUB_SHA:0:8}"
+          tag="ci-$(date +'%Y%m%d-%H%M' -d "$time")"
+          message="CI $(date +'%Y-%m-%d %H:%M' -d "$time")"
+          hub release create $(for a in artifacts/*/*; do echo -a $a; done) -t "$GITHUB_SHA" "$tag" -m "$message"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
