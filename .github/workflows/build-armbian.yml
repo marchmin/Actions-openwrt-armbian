@@ -1,109 +1,89 @@
-name: Build armbian
+name: CI
 
 on:
-#  release:
-#    types: published
-#  push:
-#    branches:
-#      - master
-#    paths:
-#      - '.config'
-#  schedule:
-#    - cron: 0 8 * * 5
-  watch:
-    types: started
-    if: github.event.repository.owner.id == github.event.sender.id
-  repository_dispatch:
   workflow_dispatch:
-    inputs:
-      SSH:
-        description: 'SSH connection to Actions?'
-        required: false
-        default: 'false'   
-      config-file:
-        description: 'Which config file is used?'
-        required: false
-        default: '0' 
-        
-env:
-  REPO_URL: https://github.com/armbian/build
-  REPO_BRANCH: master
-  DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
-  UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
-  UPLOAD_WETRANSFER: true
-  TZ: Asia/Shanghai
+  push:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    name: Build ${{ matrix.RELEASE }}-${{ matrix.BRANCH }}-${{ matrix.TYPE == 'desktop' && matrix.DESKTOP_ENVIRONMENT || matrix.TYPE }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        BRANCH:
+          - edge
+          - current
+          - legacy
+        RELEASE:
+          - focal # Ubuntu 20.04 LTS
+          - jammy # Ubuntu 22.04 LTS
+          - bullseye # Debian 11
+        TYPE:
+          # - minimal
+          - cli
+          - desktop
+        exclude:
+          - BRANCH: current
+            TYPE: desktop
+          - BRANCH: legacy
+            TYPE: desktop
+        include:
+          - TYPE: desktop
+            DESKTOP_ENVIRONMENT: xfce
+            DESKTOP_ENVIRONMENT_CONFIG_NAME: config_base
+            DESKTOP_APPGROUPS_SELECTED: ""
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: armbian/build
 
-    - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install $(curl -fsSL https://github.com/ophub/amlogic-s9xxx-armbian/raw/main/compile-kernel/tools/script/ubuntu2004-build-armbian-depends)
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
-        sudo timedatectl set-timezone "$TZ"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
-        
-    - name: Clone source code
-      working-directory: /workdir
-      run: |
-        sudo apt update
-        sudo apt upgrade -y
-        sudo apt install libmpc-dev
-        df -hT $PWD
-        git clone --depth 1 $REPO_URL -b $REPO_BRANCH armbian
-        ln -sf /workdir/armbian $GITHUB_WORKSPACE/armbian        
-         
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install libmpc-dev
+      - name: Build
+        run: |
+          sudo ./compile.sh \
+            BOARD=onecloud \
+            BRANCH=${{ matrix.BRANCH }} \
+            RELEASE=${{ matrix.RELEASE }} \
+            KERNEL_CONFIGURE=no \
+            KERNEL_ONLY=no \
+            BUILD_MINIMAL=${{ matrix.TYPE == 'minimal' && 'yes' || 'no' }} \
+            BUILD_DESKTOP=${{ matrix.TYPE == 'desktop' && 'yes' || 'no' }} \
+            DESKTOP_ENVIRONMENT=${{ matrix.DESKTOP_ENVIRONMENT }} \
+            DESKTOP_ENVIRONMENT_CONFIG_NAME=${{ matrix.DESKTOP_ENVIRONMENT_CONFIG_NAME }} \
+            DESKTOP_APPGROUPS_SELECTED=${{ matrix.DESKTOP_APPGROUPS_SELECTED }} \
+            EXPERT=yes \
+            USE_CCACHE=no \
+            COMPRESS_OUTPUTIMAGE=gz,sha,gpg
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.RELEASE }}-${{ matrix.BRANCH }}-${{ matrix.TYPE == 'desktop' && matrix.DESKTOP_ENVIRONMENT || matrix.TYPE }}
+          path: output/images/*
 
-    - name: Compile the firmware
-      id: compile
-      run: |
-        cd armbian
-        ./compile.sh BOARD=onecloud BRANCH=edge RELEASE=buster BUILD_MINIMAL=yes BUILD_DESKTOP=no KERNEL_ONLY=no KERNEL_CONFIGURE=no COMPRESS_OUTPUTIMAGE=sha,gpg,img EXTRAWIFI=no
-              
-    - name: Organize files
-      id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' || 'false' && !cancelled()
-      run: |
-        cd armbian/output
-        ls -l ./debs
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        sudo tar -czvf images.tar.gz images || exit 0
-        sudo tar -czvf debug.tar.gz debug || exit 0
-        sudo tar -czvf debs.tar.gz debs || exit 0
-        sudo tar -czvf config.tar.gz config || exit 0
-        sudo rm -rf images debug || exit 0
-        sudo rm -rf debs* || exit 0
-        echo "::set-output name=status::success"
-        
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@master
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-      with:
-        name: Armbian_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Upload firmware to WeTransfer
-      if: env.UPLOAD_WETRANSFER == 'true' && !cancelled()
-      run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee wetransfer.log
-        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-        
-    - name: Delete workflow runs
-      uses: GitRML/delete-workflow-runs@main
-      with:
-        retain_days: 10
-        keep_minimum_runs: 10
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts/
+
+      - name: Release
+        run: |
+          time="${{ github.event.head_commit.timestamp }}"
+          sha="${GITHUB_SHA:0:8}"
+          tag="ci-$(date +'%Y%m%d-%H%M' -d "$time")"
+          message="CI $(date +'%Y-%m-%d %H:%M' -d "$time")"
+          hub release create $(for a in artifacts/*/*; do echo -a $a; done) -t "$GITHUB_SHA" "$tag" -m "$message"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
