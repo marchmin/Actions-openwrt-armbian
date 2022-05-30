@@ -19,20 +19,6 @@ jobs:
           - focal # Ubuntu 20.04 LTS
           - jammy # Ubuntu 22.04 LTS
           - bullseye # Debian 11
-        TYPE:
-          - minimal
-          #- cli
-          #- desktop
-        exclude:
-          - BRANCH: current
-            TYPE: desktop
-          - BRANCH: legacy
-            TYPE: desktop
-        include:
-          - TYPE: desktop
-            DESKTOP_ENVIRONMENT: xfce
-            DESKTOP_ENVIRONMENT_CONFIG_NAME: config_base
-            DESKTOP_APPGROUPS_SELECTED: ""
 
     steps:
       - name: Checkout
@@ -60,7 +46,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.RELEASE }}-${{ matrix.BRANCH }}-${{ matrix.TYPE == 'desktop' && matrix.DESKTOP_ENVIRONMENT || matrix.TYPE }}
+          name: ${{ matrix.RELEASE }}-${{ matrix.BRANCH }}
           path: output/images/*
 
   release:
