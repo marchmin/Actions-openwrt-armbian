@@ -14,11 +14,8 @@ jobs:
         BRANCH:
           - edge
           - current
-          - legacy
         RELEASE:
-          - focal # Ubuntu 20.04 LTS
-          - jammy # Ubuntu 22.04 LTS
-          - bullseye # Debian 11
+          - buster # Ubuntu 20.04 LTS
 
     steps:
       - name: Checkout
