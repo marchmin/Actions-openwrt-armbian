@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: soulteary/armbian-build-s805 --branch=codebase-on-150balbes
+          repository: git clone https://github.com/soulteary/armbian-build-s805.git --branch=codebase-on-150balbes
 
       - name: Install dependencies
         run: |
