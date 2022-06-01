@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: armbian/build
+          repository: soulteary/armbian-build-s805 --branch=codebase-on-150balbes
 
       - name: Install dependencies
         run: |
@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: |
           sudo ./compile.sh \
-            BOARD=onecloud \
+            BOARD=aml-s805 \
             BRANCH=${{ matrix.BRANCH }} \
             RELEASE=${{ matrix.RELEASE }} \
             KERNEL_CONFIGURE=no \
